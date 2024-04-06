@@ -84,10 +84,40 @@ pub struct YamlLoader {
     doc_stack: Vec<(Yaml, usize)>,
     key_stack: Vec<Yaml>,
     anchor_map: BTreeMap<usize, Yaml>,
+    /// An error, if one was encountered.
+    error: Option<ScanError>,
 }
 
 impl MarkedEventReceiver for YamlLoader {
-    fn on_event(&mut self, ev: Event, _: Marker) {
+    fn on_event(&mut self, ev: Event, mark: Marker) {
+        if self.error.is_some() {
+            return;
+        }
+        if let Err(e) = self.on_event_impl(ev, mark) {
+            self.error = Some(e);
+        }
+    }
+}
+
+/// An error that happened when loading a YAML document.
+#[derive(Debug)]
+pub enum LoadError {
+    /// An I/O error.
+    IO(std::io::Error),
+    /// An error within the scanner. This indicates a malformed YAML input.
+    Scan(ScanError),
+    /// A decoding error (e.g.: Invalid UTF_8).
+    Decode(std::borrow::Cow<'static, str>),
+}
+
+impl From<std::io::Error> for LoadError {
+    fn from(error: std::io::Error) -> Self {
+        LoadError::IO(error)
+    }
+}
+
+impl YamlLoader {
+    fn on_event_impl(&mut self, ev: Event, mark: Marker) -> Result<(), ScanError> {
         // println!("EV {:?}", ev);
         match ev {
             Event::DocumentStart | Event::Nothing | Event::StreamStart | Event::StreamEnd => {
@@ -106,7 +136,7 @@ impl MarkedEventReceiver for YamlLoader {
             }
             Event::SequenceEnd => {
                 let node = self.doc_stack.pop().unwrap();
-                self.insert_new_node(node);
+                self.insert_new_node(node, mark)?;
             }
             Event::MappingStart(aid, _) => {
                 self.doc_stack.push((Yaml::Hash(Hash::new()), aid));
@@ -115,7 +145,7 @@ impl MarkedEventReceiver for YamlLoader {
             Event::MappingEnd => {
                 self.key_stack.pop().unwrap();
                 let node = self.doc_stack.pop().unwrap();
-                self.insert_new_node(node);
+                self.insert_new_node(node, mark)?;
             }
             Event::Scalar(v, style, aid, tag) => {
                 let node = if style != TScalarStyle::Plain {
@@ -156,39 +186,21 @@ impl MarkedEventReceiver for YamlLoader {
                     Yaml::from_str(&v)
                 };
 
-                self.insert_new_node((node, aid));
+                self.insert_new_node((node, aid), mark)?;
             }
             Event::Alias(id) => {
                 let n = match self.anchor_map.get(&id) {
                     Some(v) => v.clone(),
                     None => Yaml::BadValue,
                 };
-                self.insert_new_node((n, 0));
+                self.insert_new_node((n, 0), mark)?;
             }
         }
         // println!("DOC {:?}", self.doc_stack);
+        Ok(())
     }
-}
 
-/// An error that happened when loading a YAML document.
-#[derive(Debug)]
-pub enum LoadError {
-    /// An I/O error.
-    IO(std::io::Error),
-    /// An error within the scanner. This indicates a malformed YAML input.
-    Scan(ScanError),
-    /// A decoding error (e.g.: Invalid UTF_8).
-    Decode(std::borrow::Cow<'static, str>),
-}
-
-impl From<std::io::Error> for LoadError {
-    fn from(error: std::io::Error) -> Self {
-        LoadError::IO(error)
-    }
-}
-
-impl YamlLoader {
-    fn insert_new_node(&mut self, node: (Yaml, usize)) {
+    fn insert_new_node(&mut self, node: (Yaml, usize), mark: Marker) -> Result<(), ScanError> {
         // valid anchor id starts from 1
         if node.1 > 0 {
             self.anchor_map.insert(node.1, node.0.clone());
@@ -208,12 +220,19 @@ impl YamlLoader {
                     } else {
                         let mut newkey = Yaml::BadValue;
                         mem::swap(&mut newkey, cur_key);
-                        h.insert(newkey, node.0);
+                        if h.insert(newkey, node.0).is_some() {
+                            let inserted_key = h.back().unwrap().0;
+                            return Err(ScanError::new_string(
+                                mark,
+                                format!("{inserted_key:?}: duplicated key in mapping"),
+                            ));
+                        }
                     }
                 }
                 _ => unreachable!(),
             }
         }
+        Ok(())
     }
 
     /// Load the given string as a set of YAML documents.
@@ -250,7 +269,11 @@ impl YamlLoader {
     ) -> Result<Vec<Yaml>, ScanError> {
         let mut loader = YamlLoader::default();
         parser.load(&mut loader, true)?;
-        Ok(loader.docs)
+        if let Some(e) = loader.error {
+            Err(e)
+        } else {
+            Ok(loader.docs)
+        }
     }
 
     /// Return a reference to the parsed Yaml documents.

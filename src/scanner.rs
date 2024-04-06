@@ -95,6 +95,12 @@ impl ScanError {
         }
     }
 
+    /// Create a new error from a location and an error string.
+    #[must_use]
+    pub fn new_string(loc: Marker, info: String) -> ScanError {
+        ScanError { mark: loc, info }
+    }
+
     /// Return the marker pointing to the error in the source.
     #[must_use]
     pub fn marker(&self) -> &Marker {
