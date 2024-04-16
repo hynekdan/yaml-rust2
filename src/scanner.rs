@@ -511,7 +511,7 @@ impl<T: Iterator<Item = char>> Scanner<T> {
 
     /// Consume a linebreak (either CR, LF or CRLF), if any. Do nothing if there's none.
     #[inline]
-    fn skip_line(&mut self) {
+    fn skip_linebreak(&mut self) {
         if self.buffer[0] == '\r' && self.buffer[1] == '\n' {
             // While technically not a blank, this does not matter as `self.leading_whitespace`
             // will be reset by `skip_nl`.
@@ -848,7 +848,7 @@ impl<T: Iterator<Item = char>> Scanner<T> {
                 '\t' | ' ' => self.skip_blank(),
                 '\n' | '\r' => {
                     self.lookahead(2);
-                    self.skip_line();
+                    self.skip_linebreak();
                     if self.flow_level == 0 {
                         self.allow_simple_key();
                     }
@@ -879,7 +879,7 @@ impl<T: Iterator<Item = char>> Scanner<T> {
                 }
                 '\n' | '\r' => {
                     self.lookahead(2);
-                    self.skip_line();
+                    self.skip_linebreak();
                     if self.flow_level == 0 {
                         self.allow_simple_key();
                     }
@@ -976,8 +976,6 @@ impl<T: Iterator<Item = char>> Scanner<T> {
         self.disallow_simple_key();
 
         let tok = self.scan_directive()?;
-        self.skip_ws_to_eol(SkipTabs::Yes)?;
-
         self.tokens.push_back(tok);
 
         Ok(())
@@ -1009,20 +1007,16 @@ impl<T: Iterator<Item = char>> Scanner<T> {
 
         self.skip_ws_to_eol(SkipTabs::Yes)?;
 
-        if !is_breakz(self.ch()) {
-            return Err(ScanError::new(
+        if is_breakz(self.ch()) {
+            self.lookahead(2);
+            self.skip_linebreak();
+            Ok(tok)
+        } else {
+            Err(ScanError::new(
                 start_mark,
                 "while scanning a directive, did not find expected comment or line break",
-            ));
+            ))
         }
-
-        // Eat a line break
-        if is_break(self.ch()) {
-            self.lookahead(2);
-            self.skip_line();
-        }
-
-        Ok(tok)
     }
 
     fn scan_version_directive_value(&mut self, mark: &Marker) -> Result<Token, ScanError> {
@@ -2048,7 +2042,7 @@ impl<T: Iterator<Item = char>> Scanner<T> {
                 '\\' if !single && is_break(self.buffer[1]) => {
                     self.lookahead(3);
                     self.skip_non_blank();
-                    self.skip_line();
+                    self.skip_linebreak();
                     *leading_blanks = true;
                     break;
                 }

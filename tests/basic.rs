@@ -246,6 +246,21 @@ fn test_issue_65_mwe() {
 }
 
 #[test]
+fn test_comment_after_tag() {
+    // https://github.com/Ethiraric/yaml-rust2/issues/21#issuecomment-2053513507
+    let s = "
+%YAML 1.2
+# This is a comment
+--- #-------
+foobar";
+
+    assert_eq!(
+        YamlLoader::load_from_str(s),
+        Ok(vec![Yaml::String(String::from("foobar"))])
+    );
+}
+
+#[test]
 fn test_bad_docstart() {
     assert!(YamlLoader::load_from_str("---This used to cause an infinite loop").is_ok());
     assert_eq!(
