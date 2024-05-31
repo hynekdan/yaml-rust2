@@ -106,7 +106,7 @@ pub enum LoadError {
     IO(std::io::Error),
     /// An error within the scanner. This indicates a malformed YAML input.
     Scan(ScanError),
-    /// A decoding error (e.g.: Invalid UTF_8).
+    /// A decoding error (e.g.: Invalid UTF-8).
     Decode(std::borrow::Cow<'static, str>),
 }
 
@@ -627,7 +627,7 @@ impl Yaml {
     }
 }
 
-#[cfg_attr(feature = "cargo-clippy", allow(clippy::should_implement_trait))]
+#[allow(clippy::should_implement_trait)]
 impl Yaml {
     /// Convert a string to a [`Yaml`] node.
     ///

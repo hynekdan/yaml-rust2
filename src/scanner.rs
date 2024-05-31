@@ -1145,7 +1145,7 @@ impl<T: Iterator<Item = char>> Scanner<T> {
                     self.scan_tag_shorthand_suffix(false, is_secondary_handle, "", &start_mark)?;
             } else {
                 suffix = self.scan_tag_shorthand_suffix(false, false, &handle, &start_mark)?;
-                handle = "!".to_owned();
+                "!".clone_into(&mut handle);
                 // A special case: the '!' tag.  Set the handle to '' and the
                 // suffix to '!'.
                 if suffix.is_empty() {
