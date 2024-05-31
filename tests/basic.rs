@@ -261,6 +261,30 @@ foobar";
 }
 
 #[test]
+fn test_large_block_scalar_indent() {
+    // https://github.com/Ethiraric/yaml-rust2/issues/29
+    // Tests the `loop` fallback of `skip_block_scalar_indent`. The indent in the YAML string must
+    // be greater than `BUFFER_LEN - 2`. The second line is further indented with spaces, and the
+    // resulting string should be "a\n    b".
+    let s = "
+a: |-
+                  a
+                      b
+";
+
+    let doc = &YamlLoader::load_from_str(s).unwrap()[0];
+    let Yaml::Hash(map) = doc else {
+        dbg!(doc);
+        panic!()
+    };
+    assert_eq!(map.len(), 1);
+    assert_eq!(
+        map.get(&Yaml::String("a".to_string())),
+        Some(&Yaml::String(String::from("a\n    b")))
+    );
+}
+
+#[test]
 fn test_bad_docstart() {
     assert!(YamlLoader::load_from_str("---This used to cause an infinite loop").is_ok());
     assert_eq!(
