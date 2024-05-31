@@ -2,6 +2,8 @@
 
 ## Upcoming
 
+## v0.8.1
+
 **Bug fixes**
 - ([#29](https://github.com/Ethiraric/yaml-rust2/issues/29)) Fix parsing
   failing for deeply indented scalar blocks.
