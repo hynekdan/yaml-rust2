@@ -2,6 +2,13 @@
 
 ## Upcoming
 
+**Bug fixes**
+- ([#29](https://github.com/Ethiraric/yaml-rust2/issues/29)) Fix parsing
+  failing for deeply indented scalar blocks.
+
+- ([#21-comment](https://github.com/Ethiraric/yaml-rust2/issues/21#issuecomment-2053513507))
+  Fix parsing failing with comments immediately following a YAML tag.
+
 **Features**
 
 - ([#19](https://github.com/Ethiraric/yaml-rust2/pull/19)) `Yaml` now
@@ -21,6 +28,14 @@
   default. Users of `@davvid`'s fork of `yaml-rust` or of `yaml-rust2` might
   already use this. Users of the original `yaml-rust` crate may freely disable
   this feature (`cargo <...> --no-default-features`) and lower MSRV to 1.65.0.
+
+- Duplicate keys no longer allowed
+
+  Instead of silently choosing one of two values sharing the same key in a
+  mapping, we now issue an error. This behavior is part of the YAML
+  specification, but not tested by the `yaml-test-suite` (the parser needs to
+  emit events for both key-values). Additionally, there is no standard way of
+  defining which value should be chosen in case of a duplicate.
 
 ## v0.8.0
 
