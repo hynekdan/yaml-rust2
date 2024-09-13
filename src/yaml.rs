@@ -40,9 +40,9 @@ pub enum Yaml {
     String(String),
     /// YAML bool, e.g. `true` or `false`.
     Boolean(bool),
-    /// YAML array, can be accessed as a `Vec`.
+    /// YAML array, can be accessed as a [`Vec`].
     Array(Array),
-    /// YAML hash, can be accessed as a `LinkedHashMap`.
+    /// YAML hash, can be accessed as a [`LinkedHashMap`].
     ///
     /// Insertion order will match the order of insertion into the map.
     Hash(Hash),
