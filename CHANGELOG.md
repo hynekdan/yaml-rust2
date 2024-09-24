@@ -6,6 +6,10 @@
 - ([#37](https://github.com/Ethiraric/yaml-rust2/pull/37))
   Parse empty scalars as `""` instead of `"~"`.
 
+**Features**
+- Add better doccomments to the `Index` and `IntoIterator` implementations for
+  `Yaml` to better explain their quirks and design decisions.
+
 ## v0.8.1
 
 **Bug fixes**

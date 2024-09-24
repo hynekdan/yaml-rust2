@@ -682,6 +682,16 @@ static BAD_VALUE: Yaml = Yaml::BadValue;
 impl<'a> Index<&'a str> for Yaml {
     type Output = Yaml;
 
+    /// Perform indexing if `self` is a mapping.
+    ///
+    /// # Return
+    /// If `self` is a [`Yaml::Hash`], returns an immutable borrow to the value associated to the
+    /// given key in the hash.
+    ///
+    /// This function returns a [`Yaml::BadValue`] if the underlying [`type@Hash`] does not contain
+    /// [`Yaml::String`]`{idx}` as a key.
+    ///
+    /// This function also returns a [`Yaml::BadValue`] if `self` is not a [`Yaml::Hash`].
     fn index(&self, idx: &'a str) -> &Yaml {
         let key = Yaml::String(idx.to_owned());
         match self.as_hash() {
@@ -692,6 +702,15 @@ impl<'a> Index<&'a str> for Yaml {
 }
 
 impl<'a> IndexMut<&'a str> for Yaml {
+    /// Perform indexing if `self` is a mapping.
+    ///
+    /// Since we cannot return a mutable borrow to a static [`Yaml::BadValue`] as we return an
+    /// immutable one in [`Index<&'a str>`], this function panics on out of bounds.
+    ///
+    /// # Panics
+    /// This function panics if the given key is not contained in `self` (as per [`IndexMut`]).
+    ///
+    /// This function also panics if `self` is not a [`Yaml::Hash`].
     fn index_mut(&mut self, idx: &'a str) -> &mut Yaml {
         let key = Yaml::String(idx.to_owned());
         match self.as_mut_hash() {
@@ -704,6 +723,22 @@ impl<'a> IndexMut<&'a str> for Yaml {
 impl Index<usize> for Yaml {
     type Output = Yaml;
 
+    /// Perform indexing if `self` is a sequence or a mapping.
+    ///
+    /// # Return
+    /// If `self` is a [`Yaml::Array`], returns an immutable borrow to the value located at the
+    /// given index in the array.
+    ///
+    /// Otherwise, if `self` is a [`Yaml::Hash`], returns a borrow to the value whose key is
+    /// [`Yaml::Integer`]`(idx)` (this would not work if the key is [`Yaml::String`]`("1")`.
+    ///
+    /// This function returns a [`Yaml::BadValue`] if the index given is out of range. If `self` is
+    /// a [`Yaml::Array`], this is when the index is bigger or equal to the length of the
+    /// underlying `Vec`. If `self` is a [`Yaml::Hash`], this is when the mapping sequence does not
+    /// contain [`Yaml::Integer`]`(idx)` as a key.
+    ///
+    /// This function also returns a [`Yaml::BadValue`] if `self` is not a [`Yaml::Array`] nor a
+    /// [`Yaml::Hash`].
     fn index(&self, idx: usize) -> &Yaml {
         if let Some(v) = self.as_vec() {
             v.get(idx).unwrap_or(&BAD_VALUE)
@@ -719,10 +754,13 @@ impl Index<usize> for Yaml {
 impl IndexMut<usize> for Yaml {
     /// Perform indexing if `self` is a sequence or a mapping.
     ///
+    /// Since we cannot return a mutable borrow to a static [`Yaml::BadValue`] as we return an
+    /// immutable one in [`Index<usize>`], this function panics on out of bounds.
+    ///
     /// # Panics
-    /// This function panics if the index given is out of range (as per [`IndexMut`]). If `self` i
+    /// This function panics if the index given is out of range (as per [`IndexMut`]). If `self` is
     /// a [`Yaml::Array`], this is when the index is bigger or equal to the length of the
-    /// underlying `Vec`. If `self` is a [`Yaml::Hash`], this is when the mapping sequence does no
+    /// underlying `Vec`. If `self` is a [`Yaml::Hash`], this is when the mapping sequence does not
     /// contain [`Yaml::Integer`]`(idx)` as a key.
     ///
     /// This function also panics if `self` is not a [`Yaml::Array`] nor a [`Yaml::Hash`].
@@ -742,6 +780,37 @@ impl IntoIterator for Yaml {
     type Item = Yaml;
     type IntoIter = YamlIter;
 
+    /// Extract the [`Array`] from `self` and iterate over it.
+    ///
+    /// If `self` is **not** of the [`Yaml::Array`] variant, this function will not panic or return
+    /// an error (as per the [`IntoIterator`] trait it cannot) but will instead return an iterator
+    /// over an empty [`Array`]. Callers have to ensure (using [`Yaml::is_array`], [`matches`] or
+    /// something similar) that the [`Yaml`] object is a [`Yaml::Array`] if they want to do error
+    /// handling.
+    ///
+    /// # Examples
+    /// ```
+    /// # use yaml_rust2::{Yaml, YamlLoader};
+    ///
+    /// // An array of 2 integers, 1 and 2.
+    /// let arr = &YamlLoader::load_from_str("- 1\n- 2").unwrap()[0];
+    ///
+    /// assert_eq!(arr.clone().into_iter().count(), 2);
+    /// assert_eq!(arr.clone().into_iter().next(), Some(Yaml::Integer(1)));
+    /// assert_eq!(arr.clone().into_iter().nth(1), Some(Yaml::Integer(2)));
+    ///
+    /// // An empty array returns an empty iterator.
+    /// let empty = Yaml::Array(vec![]);
+    /// assert_eq!(empty.into_iter().count(), 0);
+    ///
+    /// // A hash with 2 key-value pairs, `(a, b)` and `(c, d)`.
+    /// let hash = YamlLoader::load_from_str("a: b\nc: d").unwrap().remove(0);
+    /// // The hash has 2 elements.
+    /// assert_eq!(hash.as_hash().unwrap().iter().count(), 2);
+    /// // But since `into_iter` can't be used with a `Yaml::Hash`, `into_iter` returns an empty
+    /// // iterator.
+    /// assert_eq!(hash.into_iter().count(), 0);
+    /// ```
     fn into_iter(self) -> Self::IntoIter {
         YamlIter {
             yaml: self.into_vec().unwrap_or_default().into_iter(),
