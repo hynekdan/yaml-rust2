@@ -7,6 +7,7 @@
   Parse empty scalars as `""` instead of `"~"`.
 
 **Features**
+- Add `Yaml::is_hash`.
 - Add better doccomments to the `Index` and `IntoIterator` implementations for
   `Yaml` to better explain their quirks and design decisions.
 

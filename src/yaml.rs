@@ -577,6 +577,12 @@ impl Yaml {
         matches!(*self, Yaml::Array(_))
     }
 
+    /// Return whether `self` is a [`Yaml::Hash`] node.
+    #[must_use]
+    pub fn is_hash(&self) -> bool {
+        matches!(*self, Yaml::Hash(_))
+    }
+
     /// Return the `f64` value contained in this YAML node.
     ///
     /// If the node is not a [`Yaml::Real`] YAML node or its contents is not a valid `f64` string,
