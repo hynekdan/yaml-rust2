@@ -2,6 +2,17 @@
 
 ## Upcoming
 
+## v0.9.0
+
+**Breaking Changes**
+- Update dependencies.
+  Since `hashlink` is exposed (through `Yaml::Hash`) and has been updated from
+  0.8.4 to 0.9.1, the new version of `yaml-rust2` will not link properly if you
+  explicitly rely on `hashlink v0.8`.
+  Existing code with v0.8.4 should still compile fine in v0.9.1 (see
+  [hashlink's v0.9.0
+  changelog](https://github.com/kyren/hashlink/releases/tag/v0.9.0)).
+
 **Bug fixes**
 - ([#37](https://github.com/Ethiraric/yaml-rust2/pull/37))
   Parse empty scalars as `""` instead of `"~"`.

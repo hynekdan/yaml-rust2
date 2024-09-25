@@ -11,7 +11,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! yaml-rust2 = "0.8.1"
+//! yaml-rust2 = "0.9.0"
 //! ```
 //!
 //! # Examples
