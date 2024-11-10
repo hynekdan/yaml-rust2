@@ -1,5 +1,11 @@
 # yaml-rust2
 
+> [!IMPORTANT]
+>
+> This crate will receive only basic maintenance and keep a stable API. [`saphyr`](https://github.com/saphyr-rs/saphyr) will accept new features, at the cost of a less stable API.
+> 
+> Please refer to [#26](https://github.com/Ethiraric/yaml-rust2/issues/26) for more details.
+
 [yaml-rust2](https://github.com/Ethiraric/yaml-rust2) is a fully compliant YAML 1.2
 implementation written in pure Rust.
 
