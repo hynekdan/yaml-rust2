@@ -2,6 +2,13 @@
 
 ## Upcoming
 
+**Breaking Changes**
+- Update dependencies.
+  `hashlink` had a bogus requirement of `>= 0.8, < 0.10`, sorry. As mentioned
+  [here](https://github.com/Ethiraric/yaml-rust2/issues/33#issuecomment-2227455469),
+  range requirements shouldn't be used and I haven't been vigilant enough when
+  reviewing. The requirement is now set to `0.10`.
+
 **Changes**
 - Force quotes on `y` and `n` to appease the YAML 1.1 lords.
 
