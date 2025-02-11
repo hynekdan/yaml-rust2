@@ -1779,7 +1779,7 @@ impl<T: Iterator<Item = char>> Scanner<T> {
             self.mark.index += line_buffer.len();
 
             // We can now append our bytes to our `string`.
-            string.reserve(line_buffer.as_bytes().len());
+            string.reserve(line_buffer.len());
             string.push_str(line_buffer);
             // This clears the _contents_ without touching the _capacity_.
             line_buffer.clear();
@@ -2459,7 +2459,7 @@ impl<T: Iterator<Item = char>> Scanner<T> {
     /// An indentation is not added if we are inside a flow level or if the last indent is already
     /// a non-block indent.
     fn roll_one_col_indent(&mut self) {
-        if self.flow_level == 0 && self.indents.last().map_or(false, |x| x.needs_block_end) {
+        if self.flow_level == 0 && self.indents.last().is_some_and(|x| x.needs_block_end) {
             self.indents.push(Indent {
                 indent: self.indent,
                 needs_block_end: false,
