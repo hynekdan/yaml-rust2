@@ -2,6 +2,8 @@
 
 ## Upcoming
 
+## v0.10.0
+
 **Breaking Changes**
 - Update dependencies.
   `hashlink` had a bogus requirement of `>= 0.8, < 0.10`, sorry. As mentioned
