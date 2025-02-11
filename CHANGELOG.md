@@ -2,6 +2,9 @@
 
 ## Upcoming
 
+**Changes**
+- Force quotes on `y` and `n` to appease the YAML 1.1 lords.
+
 ## v0.9.0
 
 **Breaking Changes**

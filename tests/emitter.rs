@@ -103,7 +103,6 @@ products:
   "true": bool key
   "{}": empty hash key
 x: test
-y: avoid quoting here
 z: string with spaces"#;
 
     let docs = YamlLoader::load_from_str(s).unwrap();
@@ -144,13 +143,13 @@ null0: ~
   - "TRUE"
   - "False"
   - "FALSE"
-  - y
-  - Y
+  - "y"
+  - "Y"
   - "yes"
   - "Yes"
   - "YES"
-  - n
-  - N
+  - "n"
+  - "N"
   - "no"
   - "No"
   - "NO"

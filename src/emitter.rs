@@ -401,14 +401,14 @@ fn need_quotes(string: &str) -> bool {
             | '\x1c'..='\x1f')
         })
         || [
-            // http://yaml.org/type/bool.html
-            // Note: 'y', 'Y', 'n', 'N', is not quoted deliberately, as in libyaml. PyYAML also parse
-            // them as string, not booleans, although it is violating the YAML 1.1 specification.
-            // See https://github.com/dtolnay/serde-yaml/pull/83#discussion_r152628088.
-            "yes", "Yes", "YES", "no", "No", "NO", "True", "TRUE", "true", "False", "FALSE",
-            "false", "on", "On", "ON", "off", "Off", "OFF",
-            // http://yaml.org/type/null.html
+            // Canonical forms of the boolean values in the Core schema.
+            "true", "false", "True", "False", "TRUE", "FALSE",
+            // Canonical forms of the null value in the Core schema.
             "null", "Null", "NULL", "~",
+            // These can be quoted when emitting so that YAML 1.1 parsers do not parse them as
+            // booleans. This doesn't cause any issue with YAML 1.2 parsers.
+            "y", "Y", "n", "N", "yes", "Yes", "YES", "no", "No", "NO", "True", "TRUE", "False",
+            "FALSE", "on", "On", "ON", "off", "Off", "OFF",
         ]
         .contains(&string)
         || string.starts_with('.')
