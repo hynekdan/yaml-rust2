@@ -2,13 +2,16 @@
 
 ## Upcoming
 
-**Breaking changes**
+## v0.10.1
+
+**Bug fixes**
 - Parse `.NaN` as float instead of `NaN`.
 
 ## v0.10.0
 
 **Breaking Changes**
 - Update dependencies.
+
   `hashlink` had a bogus requirement of `>= 0.8, < 0.10`, sorry. As mentioned
   [here](https://github.com/Ethiraric/yaml-rust2/issues/33#issuecomment-2227455469),
   range requirements shouldn't be used and I haven't been vigilant enough when
@@ -21,6 +24,7 @@
 
 **Breaking Changes**
 - Update dependencies.
+
   Since `hashlink` is exposed (through `Yaml::Hash`) and has been updated from
   0.8.4 to 0.9.1, the new version of `yaml-rust2` will not link properly if you
   explicitly rely on `hashlink v0.8`.
