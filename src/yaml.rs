@@ -649,6 +649,7 @@ impl Yaml {
     /// assert!(matches!(Yaml::from_str("~"), Yaml::Null));
     /// assert!(matches!(Yaml::from_str("null"), Yaml::Null));
     /// assert!(matches!(Yaml::from_str("true"), Yaml::Boolean(true)));
+    /// assert!(matches!(Yaml::from_str("True"), Yaml::Boolean(true)));
     /// assert!(matches!(Yaml::from_str("3.14"), Yaml::Real(_)));
     /// assert!(matches!(Yaml::from_str("foo"), Yaml::String(_)));
     /// ```
@@ -667,7 +668,7 @@ impl Yaml {
                 return Yaml::Integer(i);
             }
         }
-        match v {
+        match v.to_lowercase().as_str() {
             "" | "~" | "null" => Yaml::Null,
             "true" => Yaml::Boolean(true),
             "false" => Yaml::Boolean(false),
