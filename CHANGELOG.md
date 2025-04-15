@@ -2,6 +2,11 @@
 
 ## Upcoming
 
+## v0.10.2
+
+**Bug fixes**
+- Intentionally tweaking boolean evaluation - True/False without quotes ingorring case is recognized as a boolean.
+
 ## v0.10.1
 
 **Bug fixes**
