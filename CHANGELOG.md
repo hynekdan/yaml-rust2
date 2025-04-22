@@ -2,6 +2,11 @@
 
 ## Upcoming
 
+## v0.10.4
+
+**Changes**
+- Adding newline to the end of file.
+
 ## v0.10.3
 
 **Changes**

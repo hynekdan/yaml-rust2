@@ -100,7 +100,8 @@ products:
   'true': bool key
   '{}': empty hash key
 x: test
-z: string with spaces"#;
+z: string with spaces
+"#;
 
     let docs = YamlLoader::load_from_str(s).unwrap();
     let doc = &docs[0];
@@ -159,7 +160,8 @@ null0: ~
   - 'OFF'
 : false_bools
 bool0: true
-bool1: false"#;
+bool1: false
+"#;
 
     let docs = YamlLoader::load_from_str(input).unwrap();
     let doc = &docs[0];
@@ -195,7 +197,8 @@ a:
 e:
   - f
   - g
-  - h: []"
+  - h: []
+"
     } else {
         r"---
 a:
@@ -206,7 +209,8 @@ e:
   - f
   - g
   -
-    h: []"
+    h: []
+"
     };
 
     let docs = YamlLoader::load_from_str(s).unwrap();
@@ -229,7 +233,8 @@ a:
   - - c
     - d
     - - e
-      - f";
+      - f
+";
 
     let docs = YamlLoader::load_from_str(s).unwrap();
     let doc = &docs[0];
@@ -253,7 +258,8 @@ a:
     - d
     - - e
       - - f
-      - - e";
+      - - e
+";
 
     let docs = YamlLoader::load_from_str(s).unwrap();
     let doc = &docs[0];
@@ -275,7 +281,8 @@ a:
   b:
     c:
       d:
-        e: f";
+        e: f
+";
 
     let docs = YamlLoader::load_from_str(s).unwrap();
     let doc = &docs[0];
