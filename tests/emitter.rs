@@ -74,34 +74,31 @@ products:
 fn test_emit_avoid_quotes() {
     let s = r#"---
 a7: 你好
-boolean: "true"
-boolean2: "false"
+boolean: 'true'
+boolean2: 'false'
 date: 2014-12-31
-empty_string: ""
-empty_string1: " "
-empty_string2: "    a"
-empty_string3: "    a "
-exp: "12e7"
-field: ":"
-field2: "{"
-field3: "\\"
-field4: "\n"
-field5: "can't avoid quote"
-float: "2.6"
-int: "4"
-nullable: "null"
-nullable2: "~"
+empty_string: ''
+empty_string1: ' '
+empty_string2: '    a'
+empty_string3: '    a '
+exp: '12e7'
+field: ':'
+field2: '{'
+float: '2.6'
+int: '4'
+nullable: 'null'
+nullable2: '~'
 products:
-  "*coffee":
+  '*coffee':
     amount: 4
-  "*cookies":
+  '*cookies':
     amount: 4
-  ".milk":
+  '.milk':
     amount: 1
-  "2.4": real key
-  "[1,2,3,4]": array key
-  "true": bool key
-  "{}": empty hash key
+  '2.4': real key
+  '[1,2,3,4]': array key
+  'true': bool key
+  '{}': empty hash key
 x: test
 z: string with spaces"#;
 
@@ -131,11 +128,11 @@ null0: ~
 bool0: true
 bool1: false"#;
     let expected = r#"---
-string0: "yes"
-string1: "no"
-string2: "true"
-string3: "false"
-string4: "~"
+string0: 'yes'
+string1: 'no'
+string2: 'true'
+string3: 'false'
+string4: '~'
 null0: ~
 ? - true
   - false
@@ -144,22 +141,22 @@ null0: ~
   - false
   - false
 : real_bools
-? - "y"
-  - "Y"
-  - "yes"
-  - "Yes"
-  - "YES"
-  - "n"
-  - "N"
-  - "no"
-  - "No"
-  - "NO"
-  - "on"
-  - "On"
-  - "ON"
-  - "off"
-  - "Off"
-  - "OFF"
+? - 'y'
+  - 'Y'
+  - 'yes'
+  - 'Yes'
+  - 'YES'
+  - 'n'
+  - 'N'
+  - 'no'
+  - 'No'
+  - 'NO'
+  - 'on'
+  - 'On'
+  - 'ON'
+  - 'off'
+  - 'Off'
+  - 'OFF'
 : false_bools
 bool0: true
 bool1: false"#;

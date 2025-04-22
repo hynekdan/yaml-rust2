@@ -61,7 +61,7 @@ pub type EmitResult = Result<(), EmitError>;
 
 // from serialize::json
 fn escape_str(wr: &mut dyn fmt::Write, v: &str) -> Result<(), fmt::Error> {
-    wr.write_str("\"")?;
+    wr.write_str("\'")?;
 
     let mut start = 0;
 
@@ -118,7 +118,7 @@ fn escape_str(wr: &mut dyn fmt::Write, v: &str) -> Result<(), fmt::Error> {
         wr.write_str(&v[start..])?;
     }
 
-    wr.write_str("\"")?;
+    wr.write_str("\'")?;
     Ok(())
 }
 

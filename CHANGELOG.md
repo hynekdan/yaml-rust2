@@ -2,9 +2,14 @@
 
 ## Upcoming
 
+## v0.10.3
+
+**Changes**
+- Intentionally using single quotes instead of double quotes for strings.
+
 ## v0.10.2
 
-**Bug fixes**
+**Changes**
 - Intentionally tweaking boolean evaluation - True/False without quotes ingorring case is recognized as a boolean.
 
 ## v0.10.1
