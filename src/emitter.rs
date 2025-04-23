@@ -388,6 +388,7 @@ fn need_quotes(string: &str) -> bool {
         || string.starts_with("0x")
         || string.parse::<i64>().is_ok()
         || string.parse::<f64>().is_ok()
+        || (string.starts_with('\'') && string.ends_with('\'')) // special case for single quotes
 }
 
 #[cfg(test)]
