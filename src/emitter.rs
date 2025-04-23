@@ -62,64 +62,33 @@ pub type EmitResult = Result<(), EmitError>;
 
 // from serialize::json
 fn escape_str(wr: &mut dyn fmt::Write, v: &str) -> Result<(), fmt::Error> {
-    wr.write_str("\'")?;
-
-    let mut start = 0;
-
-    for (i, byte) in v.bytes().enumerate() {
-        let escaped = match byte {
-            b'"' => "\\\"",
-            b'\\' => "\\\\",
-            b'\x00' => "\\u0000",
-            b'\x01' => "\\u0001",
-            b'\x02' => "\\u0002",
-            b'\x03' => "\\u0003",
-            b'\x04' => "\\u0004",
-            b'\x05' => "\\u0005",
-            b'\x06' => "\\u0006",
-            b'\x07' => "\\u0007",
-            b'\x08' => "\\b",
-            b'\t' => "\\t",
-            b'\n' => "\\n",
-            b'\x0b' => "\\u000b",
-            b'\x0c' => "\\f",
-            b'\r' => "\\r",
-            b'\x0e' => "\\u000e",
-            b'\x0f' => "\\u000f",
-            b'\x10' => "\\u0010",
-            b'\x11' => "\\u0011",
-            b'\x12' => "\\u0012",
-            b'\x13' => "\\u0013",
-            b'\x14' => "\\u0014",
-            b'\x15' => "\\u0015",
-            b'\x16' => "\\u0016",
-            b'\x17' => "\\u0017",
-            b'\x18' => "\\u0018",
-            b'\x19' => "\\u0019",
-            b'\x1a' => "\\u001a",
-            b'\x1b' => "\\u001b",
-            b'\x1c' => "\\u001c",
-            b'\x1d' => "\\u001d",
-            b'\x1e' => "\\u001e",
-            b'\x1f' => "\\u001f",
-            b'\x7f' => "\\u007f",
-            _ => continue,
-        };
-
-        if start < i {
-            wr.write_str(&v[start..i])?;
+    // If the string starts and ends with a single quote, wrap it in double quotes
+    // this is better readable and more compact
+    if v.starts_with('\'') && v.ends_with('\'') {
+        wr.write_str("\"")?;
+        for c in v.chars() {
+            if c == '"' {
+                wr.write_str("\\\"")?;
+            } else if c == '\\' {
+                wr.write_str("\\\\")?;
+            } else {
+                wr.write_char(c)?;
+            }
         }
-
-        wr.write_str(escaped)?;
-
-        start = i + 1;
+        wr.write_str("\"")?;
+        return Ok(());
     }
 
-    if start != v.len() {
-        wr.write_str(&v[start..])?;
+    // Otherwise, use single-quoted style and double any single quotes inside
+    wr.write_str("'")?;
+    for c in v.chars() {
+        if c == '\'' {
+            wr.write_str("''")?;
+        } else {
+            wr.write_char(c)?;
+        }
     }
-
-    wr.write_str("\'")?;
+    wr.write_str("'")?;
     Ok(())
 }
 
@@ -394,15 +363,15 @@ fn need_quotes(string: &str) -> bool {
             | ','
             | '#'
             | '`'
-            | '\"'
-            | '\''
             | '\\'
-            | '\0'..='\x06'
+            | '\0'..='\x08'
+            | '\x0b'
+            | '\x0c'
+            | '\x0e'..='\x1f'
+            | '\x7f'
             | '\t'
             | '\n'
-            | '\r'
-            | '\x0e'..='\x1a'
-            | '\x1c'..='\x1f')
+            | '\r')
         })
         || [
             // Canonical forms of the boolean values in the Core schema.
@@ -419,6 +388,7 @@ fn need_quotes(string: &str) -> bool {
         || string.starts_with("0x")
         || string.parse::<i64>().is_ok()
         || string.parse::<f64>().is_ok()
+        || (string.starts_with('\'') && string.ends_with('\'')) // special case for single quotes
 }
 
 #[cfg(test)]
@@ -434,5 +404,19 @@ mod test {
         let mut emitter = YamlEmitter::new(&mut output);
         emitter.multiline_strings(true);
         emitter.dump(&parsed[0]).unwrap();
+    }
+    #[test]
+    fn test_single_quote_in_string() {
+        let input = r#"{description: Just for reference and test that it'll be removed in merged interface.}"#;
+        let parsed = YamlLoader::load_from_str(input).unwrap();
+        let mut output = String::new();
+        let mut emitter = YamlEmitter::new(&mut output);
+        emitter.dump(&parsed[0]).unwrap();
+        assert_eq!(
+            output,
+            r#"---
+description: Just for reference and test that it'll be removed in merged interface.
+"#
+        );
     }
 }
