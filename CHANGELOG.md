@@ -2,6 +2,11 @@
 
 ## Upcoming
 
+## v0.10.5
+
+**Bug fixes**
+- Fix single quote escaping.
+
 ## v0.10.4
 
 **Changes**
